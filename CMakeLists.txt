@@ -5,6 +5,12 @@ project(rendering_samples)
 set(CMAKE_MACOSX_RPATH OFF)
 set(CMAKE_CXX_STANDARD 17)
 
+if (WIN32)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+endif()
+
 include_directories(.)
 include_directories(3party/rf)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/3party/assimp/include)

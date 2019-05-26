@@ -29,3 +29,5 @@ cmake-build-*
 # VS
 .vs
 CMakeSettings.json
+
+build
