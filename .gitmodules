@@ -1,0 +1,3 @@
+[submodule "3party/rf"]
+	path = 3party/rf
+	url = git@github.com:rokuz/rf.git
