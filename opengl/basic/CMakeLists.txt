@@ -13,8 +13,8 @@ if (WIN32)
   include_directories(../../3party/rf/3party/gl3w)
 endif()
 
-configure_file(phong.vsh.glsl phong.vsh.glsl COPYONLY)
-configure_file(phong.fsh.glsl phong.fsh.glsl COPYONLY)
+configure_file(lambert.vsh.glsl lambert.vsh.glsl COPYONLY)
+configure_file(lambert.fsh.glsl lambert.fsh.glsl COPYONLY)
 
 add_executable(${PROJECT_NAME} opengl_basic.cpp)
 

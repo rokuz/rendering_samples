@@ -14,7 +14,7 @@ void main()
   mat3 ts = transpose(mat3(vTangent, cross(vNormal, vTangent), vNormal));
   vec3 lightDir = ts * normalize(kLightDir);
   float ndotl = max(dot(-lightDir, vec3(0, 0, 1)), 0.0);
-  
+
   vec4 diffuse = uDiffuseColor * ndotl;
   vec4 ambient = 0.25 * uDiffuseColor;
   oColor = clamp(diffuse + ambient, 0.0, 1.0);
