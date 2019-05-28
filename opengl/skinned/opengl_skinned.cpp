@@ -3,6 +3,9 @@
 
 using GpuProgram = rf::gl::GpuProgram;
 using Mesh = rf::gl::Mesh;
+using Texture = rf::gl::Texture;
+
+char const * const kDefaultTexture = "default.png";
 
 class BasicSample
 {
@@ -11,13 +14,44 @@ public:
   {
     m_window = window;
     m_camera.Initialize(m_window->GetScreenWidth(), m_window->GetScreenHeight());
-    m_camera.Setup(glm::vec3(0.0f, 3.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    m_camera.Setup(glm::vec3(0.0f, 2.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    if (!m_program.Initialize({"lambert.vsh.glsl", "lambert.fsh.glsl"}, true /* areFiles */))
+    if (!m_program.Initialize({"skinned.vsh.glsl", "skinned.fsh.glsl"}, true /* areFiles */))
       return false;
 
-    if (!m_mesh.InitializeAsSphere(1.0f))
+    if (!m_mesh.Initialize("army_pilot/army_pilot.dae"))
       return false;
+
+    m_textures[kDefaultTexture] = std::make_shared<Texture>("default");
+    if (!m_textures[kDefaultTexture]->Initialize(std::string(kDefaultTexture)))
+      return false;
+
+    m_meshDiffuseTextures.resize(m_mesh.GetGroupsCount());
+    for (size_t groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
+    {
+      auto const material = m_mesh.GetGroupMaterial(groupIndex);
+      if (material && !material->m_diffuseTexture.empty())
+      {
+        auto const it = m_textures.find(material->m_diffuseTexture);
+        if (it != m_textures.end())
+        {
+          m_meshDiffuseTextures[groupIndex] = it->second;
+        }
+        else
+        {
+          auto t = std::make_shared<Texture>(material->m_diffuseTexture);
+          if (t->Initialize(std::string(material->m_diffuseTexture)))
+          {
+            m_textures[material->m_diffuseTexture] = t;
+            m_meshDiffuseTextures[groupIndex] = t;
+          }
+          else
+          {
+            m_meshDiffuseTextures[groupIndex] = m_textures[kDefaultTexture];
+          }
+        }
+      }
+    }
 
     // Basic clipping/culling options.
     glFrontFace(GL_CCW);
@@ -57,15 +91,19 @@ public:
 
     if (m_program.Use())
     {
-      m_program.SetVector("uDiffuseColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+      glm::mat4x4 transform = glm::rotate(kPi, glm::vec3(0.0f, 1.0f, 0.0f));
       for (int groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
       {
-        auto const model = m_mesh.GetGroupTransform(groupIndex, glm::mat4x4());
+        auto const model = m_mesh.GetGroupTransform(groupIndex, transform);
         // GLM requires to multiply in the reverse order.
         auto const mvp = m_camera.GetProjection() * m_camera.GetView() * model;
+        m_mesh.GetBonesTransforms(groupIndex, 0, timeSinceStart, true, m_bonesTransforms);
+
         m_program.SetMatrix("uModelViewProjection", mvp);
         m_program.SetMatrix("uModel", model);
-
+        m_program.SetMatrixArray("uBoneTransforms", m_bonesTransforms.data(),
+                                 static_cast<int>(m_bonesTransforms.size()));
+        m_program.SetTexture("uDiffuseSampler", m_meshDiffuseTextures[groupIndex].get(), 0);
         m_mesh.RenderGroup(groupIndex);
       }
     }
@@ -93,6 +131,9 @@ private:
   rf::FreeCamera m_camera;
   GpuProgram m_program;
   Mesh m_mesh;
+  std::vector<std::shared_ptr<Texture>> m_meshDiffuseTextures;
+  std::map<std::string, std::shared_ptr<Texture>> m_textures;
+  std::vector<glm::mat4x4> m_bonesTransforms;
 };
 
 int main()
