@@ -4,8 +4,8 @@ layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aUV0;
 layout(location = 3) in vec3 aTangent;
-layout(location = 4) in vec4 aBoneWeights;
-layout(location = 5) in uvec4 aBoneIndices;
+layout(location = 4) in uvec4 aBoneIndices;
+layout(location = 5) in vec4 aBoneWeights;
 
 const int kMaxBonesNumber = 64;
 
@@ -23,13 +23,11 @@ void main()
                      + (uBoneTransforms[aBoneIndices[1]] * aBoneWeights[1])
                      + (uBoneTransforms[aBoneIndices[2]] * aBoneWeights[2])
                      + (uBoneTransforms[aBoneIndices[3]] * aBoneWeights[3]);
-  
+
   vec4 pos = boneTransform * vec4(aPosition, 1.0);
-  vec3 normal = normalize((boneTransform * vec4(aNormal, 0.0)).xyz);
-  vec3 tangent = normalize((boneTransform * vec4(aTangent, 0.0)).xyz);
-  
+  mat4 modelBone = uModel * boneTransform;
   gl_Position = uModelViewProjection * pos;
   vUV0 = aUV0;
-  vNormal = (uModel * vec4(normal, 0)).xyz;
-  vTangent = (uModel * vec4(tangent, 0)).xyz;
+  vNormal = normalize((modelBone * vec4(aNormal, 0.0)).xyz);
+  vTangent = normalize((modelBone * vec4(aTangent, 0.0)).xyz);
 }

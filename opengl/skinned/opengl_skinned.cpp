@@ -14,13 +14,25 @@ public:
   {
     m_window = window;
     m_camera.Initialize(m_window->GetScreenWidth(), m_window->GetScreenHeight());
-    m_camera.Setup(glm::vec3(0.0f, 2.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_camera.Setup(glm::vec3(-1.5f, 2.0f, -2.0f), glm::vec3(-1.05f, 1.5f, 0.0f));
 
     if (!m_program.Initialize({"skinned.vsh.glsl", "skinned.fsh.glsl"}, true /* areFiles */))
       return false;
 
-    if (!m_mesh.Initialize("army_pilot/army_pilot.dae"))
+    auto const desiredAttributesMask = rf::MeshVertexAttribute::Position |
+                                       rf::MeshVertexAttribute::Normal |
+                                       rf::MeshVertexAttribute::UV0 |
+                                       rf::MeshVertexAttribute::Tangent |
+                                       rf::MeshVertexAttribute::BoneIndices |
+                                       rf::MeshVertexAttribute::BoneWeights;
+    if (!m_mesh.Initialize("army_pilot/army_pilot.dae", desiredAttributesMask))
       return false;
+
+    if (m_mesh.GetAttributesMask() != desiredAttributesMask)
+    {
+      rf::Logger::ToLog(rf::Logger::Error, "Mesh doesn't contain desired attributes.");
+      return false;
+    }
 
     m_textures[kDefaultTexture] = std::make_shared<Texture>("default");
     if (!m_textures[kDefaultTexture]->Initialize(std::string(kDefaultTexture)))
@@ -144,7 +156,7 @@ int main()
   uint8_t constexpr kOpenGLMinor = 1;
 
   rf::Window window;
-  if (!window.InitializeForOpenGL(1024, 768, "OpenGL Basic Sample",
+  if (!window.InitializeForOpenGL(1024, 768, "OpenGL Skinned Mesh Sample",
                                   kOpenGLMajor, kOpenGLMinor))
   {
     return 1;
