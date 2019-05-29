@@ -13,7 +13,7 @@ if (WIN32)
   include_directories(../../3party/rf/3party/gl3w)
 endif()
 
-configure_files(../../assets/army_pilot army_pilot COPYONLY)
+configure_files(../../assets/horse horse COPYONLY)
 configure_file(../../assets/basic/default.png default.png COPYONLY)
 configure_file(skinned.vsh.glsl skinned.vsh.glsl COPYONLY)
 configure_file(skinned.fsh.glsl skinned.fsh.glsl COPYONLY)

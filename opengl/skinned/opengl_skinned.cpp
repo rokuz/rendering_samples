@@ -14,7 +14,7 @@ public:
   {
     m_window = window;
     m_camera.Initialize(m_window->GetScreenWidth(), m_window->GetScreenHeight());
-    m_camera.Setup(glm::vec3(-1.5f, 2.0f, -2.0f), glm::vec3(-1.05f, 1.5f, 0.0f));
+    m_camera.Setup(glm::vec3(-1.5f, 2.0f, -3.0f), glm::vec3(-0.5f, 0.5f, 0.0f));
 
     if (!m_program.Initialize({"skinned.vsh.glsl", "skinned.fsh.glsl"}, true /* areFiles */))
       return false;
@@ -25,7 +25,7 @@ public:
                                        rf::MeshVertexAttribute::Tangent |
                                        rf::MeshVertexAttribute::BoneIndices |
                                        rf::MeshVertexAttribute::BoneWeights;
-    if (!m_mesh.Initialize("army_pilot/army_pilot.dae", desiredAttributesMask))
+    if (!m_mesh.Initialize("horse/horse.dae", desiredAttributesMask))
       return false;
 
     if (m_mesh.GetAttributesMask() != desiredAttributesMask)
