@@ -1,0 +1,1 @@
+https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N00E006.SRTMGL1.2.jpg
