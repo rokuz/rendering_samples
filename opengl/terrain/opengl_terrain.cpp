@@ -16,6 +16,9 @@ public:
     if (!m_program.Initialize({"terrain.vsh.glsl", "terrain.fsh.glsl"}, true /* areFiles */))
       return false;
 
+    if (!m_wireframeProgram.Initialize({"wireframe.vsh.glsl", "wireframe.gsh.glsl", "wireframe.fsh.glsl"}, true /* areFiles */))
+      return false;
+
     rf::BaseTexture hmTex;
     auto hmData = hmTex.LoadHeightmap("heightmap.png");
     if (hmData.empty() || !m_mesh.InitializeAsTerrain(hmData, hmTex.GetWidth(), hmTex.GetHeight(),
@@ -23,6 +26,7 @@ public:
     {
       return false;
     }
+    rf::Logger::ToLogWithFormat(rf::Logger::Info, "Triangles count = %d", m_mesh.GetTrianglesCount());
 
     // Basic clipping/culling options.
     glFrontFace(GL_CCW);
@@ -82,11 +86,27 @@ public:
       }
     }
 
+    if (m_wireframeMode && m_wireframeProgram.Use())
+    {
+      for (int groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
+      {
+        auto const model = m_mesh.GetGroupTransform(groupIndex, glm::mat4x4());
+        // GLM requires to multiply in the reverse order.
+        auto const mvp = m_camera.GetProjection() * m_camera.GetView() * model;
+        m_wireframeProgram.SetMatrix("uModelViewProjection", mvp);
+
+        m_mesh.RenderGroup(groupIndex);
+      }
+    }
+
     glCheckError();
   }
 
   void OnKeyButton(int key, bool pressed)
   {
+    if (pressed && key == GLFW_KEY_M)
+      m_wireframeMode = !m_wireframeMode;
+
     m_camera.OnKeyButton(key, pressed);
   }
 
@@ -104,9 +124,11 @@ private:
   rf::Window const * m_window = nullptr;
   rf::FreeCamera m_camera;
   GpuProgram m_program;
+  GpuProgram m_wireframeProgram;
   Mesh m_mesh;
   float m_minAltitude = 0.0f;
   float m_maxAltitude = 10.0f;
+  bool m_wireframeMode = false;
 };
 
 int main()

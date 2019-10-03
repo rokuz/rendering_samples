@@ -17,6 +17,10 @@ configure_file(../../assets/heightmap/heightmap.png heightmap.png COPYONLY)
 configure_file(terrain.vsh.glsl terrain.vsh.glsl COPYONLY)
 configure_file(terrain.fsh.glsl terrain.fsh.glsl COPYONLY)
 
+configure_file(wireframe.vsh.glsl wireframe.vsh.glsl COPYONLY)
+configure_file(wireframe.fsh.glsl wireframe.fsh.glsl COPYONLY)
+configure_file(wireframe.gsh.glsl wireframe.gsh.glsl COPYONLY)
+
 add_executable(${PROJECT_NAME} opengl_terrain.cpp)
 
 target_link_libraries(${PROJECT_NAME} rf ${OPENGL_LIBRARY} assimp glfw gtest ${PTHREADS})
