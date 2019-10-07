@@ -3,6 +3,7 @@
 in vec3 vNormal;
 in vec3 vTangent;
 in float vAltitude;
+in float vEyeDistance;
 
 out vec4 oColor;
 
@@ -36,5 +37,9 @@ void main()
 
   vec4 diffuse = diffColor * ndotl;
   vec4 ambient = 0.25f * diffColor;
-  oColor = clamp(diffuse + ambient, 0.0f, 1.0f);
+
+  float fogDensity = 0.02 * (1.0 - vAltitude);
+  float fogCoef = 1.0 - clamp(1.0 / exp(vEyeDistance * fogDensity * fogDensity), 0.0, 1.0);
+
+  oColor = mix(clamp(diffuse + ambient, 0.0f, 1.0f), vec4(1.0, 1.0, 1.0, 1.0), fogCoef);
 }

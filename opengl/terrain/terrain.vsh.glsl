@@ -11,11 +11,13 @@ out VertexData
   vec3 normal;
   vec3 tangent;
   float altitude;
+  float eyeDistance;
 } vOutput;
 
 uniform mat4 uModelViewProjection;
 uniform mat4 uModel;
 uniform vec2 uMinMaxAltitudes;
+uniform vec3 uCameraPos;
 
 void main()
 {
@@ -25,4 +27,6 @@ void main()
   vOutput.normal = (uModel * vec4(normalize(aNormal), 0)).xyz;
   vOutput.tangent = (uModel * vec4(normalize(aTangent), 0)).xyz;
   vOutput.altitude = clamp((aPosition.y - uMinMaxAltitudes.x) / (uMinMaxAltitudes.y - uMinMaxAltitudes.x), 0.0, 1.0);
+  vec3 eyeVec = (uModel * vec4(aPosition, 1.0)).xyz - uCameraPos;
+  vOutput.eyeDistance = dot(eyeVec, eyeVec);
 }

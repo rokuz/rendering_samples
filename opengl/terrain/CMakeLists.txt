@@ -18,6 +18,10 @@ configure_file(terrain.vsh.glsl terrain.vsh.glsl COPYONLY)
 configure_file(terrain.gsh.glsl terrain.gsh.glsl COPYONLY)
 configure_file(terrain.fsh.glsl terrain.fsh.glsl COPYONLY)
 
+configure_file(rain.vsh.glsl rain.vsh.glsl COPYONLY)
+configure_file(rain.fsh.glsl rain.fsh.glsl COPYONLY)
+configure_file(rain.gsh.glsl rain.gsh.glsl COPYONLY)
+
 configure_file(wireframe.vsh.glsl wireframe.vsh.glsl COPYONLY)
 configure_file(wireframe.fsh.glsl wireframe.fsh.glsl COPYONLY)
 configure_file(wireframe.gsh.glsl wireframe.gsh.glsl COPYONLY)

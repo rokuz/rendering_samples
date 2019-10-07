@@ -12,11 +12,13 @@ in VertexData
   vec3 normal;
   vec3 tangent;
   float altitude;
+  float eyeDistance;
 } gInput[];
 
 out vec3 vNormal;
 out vec3 vTangent;
 out float vAltitude;
+out float vEyeDistance;
 
 void main()
 {
@@ -31,6 +33,7 @@ void main()
     vNormal = mix(gInput[i].normal, triangleNormal, uNormalHardness);
     vTangent = mix(gInput[i].tangent, triangleTangent, uNormalHardness);
     vAltitude = gInput[i].altitude;
+    vEyeDistance = gInput[i].eyeDistance;
     EmitVertex();
   }
   EndPrimitive();
