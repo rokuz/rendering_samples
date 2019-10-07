@@ -11,12 +11,15 @@ public:
   {
     m_window = window;
     m_camera.Initialize(m_window->GetScreenWidth(), m_window->GetScreenHeight());
-    m_camera.Setup(glm::vec3(0.0f, 70.0f, -120.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    m_camera.Setup(glm::vec3(0.0f, 60.0f, -90.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-    if (!m_program.Initialize({"terrain.vsh.glsl", "terrain.fsh.glsl"}, true /* areFiles */))
+    if (!m_program.Initialize({"terrain.vsh.glsl", "terrain.gsh.glsl", "terrain.fsh.glsl"}, true /* areFiles */))
       return false;
 
     if (!m_wireframeProgram.Initialize({"wireframe.vsh.glsl", "wireframe.gsh.glsl", "wireframe.fsh.glsl"}, true /* areFiles */))
+      return false;
+
+    if (!m_normalsProgram.Initialize({"normals.vsh.glsl", "normals.gsh.glsl", "normals.fsh.glsl"}, true /* areFiles */))
       return false;
 
     rf::BaseTexture hmTex;
@@ -27,6 +30,8 @@ public:
       return false;
     }
     rf::Logger::ToLogWithFormat(rf::Logger::Info, "Triangles count = %d", m_mesh.GetTrianglesCount());
+
+    m_groupData.resize(m_mesh.GetGroupsCount());
 
     // Basic clipping/culling options.
     glFrontFace(GL_CCW);
@@ -57,6 +62,16 @@ public:
     m_camera.Update(elapsedTime, m_window->GetScreenWidth(),
                     m_window->GetScreenHeight());
 
+    m_normalHardness = glm::clamp(m_normalHardness + m_normalHardnessDir * static_cast<float>(elapsedTime) * 0.1f,
+                                  0.0f, 1.0f);
+
+    for (int groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
+    {
+      m_groupData[groupIndex].m_model = m_mesh.GetGroupTransform(groupIndex, glm::mat4x4());
+      // GLM requires to multiply in the reverse order.
+      m_groupData[groupIndex].m_mvp = m_camera.GetProjection() * m_camera.GetView() * m_groupData[groupIndex].m_model;
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     float depth = 1.0f;
@@ -74,13 +89,11 @@ public:
       m_program.SetVector("uMinMaxAltitudes", glm::vec2(m_minAltitude, m_maxAltitude));
       m_program.SetMatrix("uColors", kColors);
       m_program.SetVector("uWeights", kWeights);
+      m_program.SetFloat("uNormalHardness", m_normalHardness);
       for (int groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
       {
-        auto const model = m_mesh.GetGroupTransform(groupIndex, glm::mat4x4());
-        // GLM requires to multiply in the reverse order.
-        auto const mvp = m_camera.GetProjection() * m_camera.GetView() * model;
-        m_program.SetMatrix("uModelViewProjection", mvp);
-        m_program.SetMatrix("uModel", model);
+        m_program.SetMatrix("uModelViewProjection", m_groupData[groupIndex].m_mvp);
+        m_program.SetMatrix("uModel", m_groupData[groupIndex].m_model);
 
         m_mesh.RenderGroup(groupIndex);
       }
@@ -90,10 +103,17 @@ public:
     {
       for (int groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
       {
-        auto const model = m_mesh.GetGroupTransform(groupIndex, glm::mat4x4());
-        // GLM requires to multiply in the reverse order.
-        auto const mvp = m_camera.GetProjection() * m_camera.GetView() * model;
-        m_wireframeProgram.SetMatrix("uModelViewProjection", mvp);
+        m_wireframeProgram.SetMatrix("uModelViewProjection", m_groupData[groupIndex].m_mvp);
+
+        m_mesh.RenderGroup(groupIndex);
+      }
+    }
+
+    if (m_normalsMode && m_normalsProgram.Use())
+    {
+      for (int groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
+      {
+        m_normalsProgram.SetMatrix("uModelViewProjection", m_groupData[groupIndex].m_mvp);
 
         m_mesh.RenderGroup(groupIndex);
       }
@@ -106,6 +126,13 @@ public:
   {
     if (pressed && key == GLFW_KEY_M)
       m_wireframeMode = !m_wireframeMode;
+    if (pressed && key == GLFW_KEY_N)
+      m_normalsMode = !m_normalsMode;
+
+    if (key == GLFW_KEY_MINUS)
+      m_normalHardnessDir = pressed ? -1.0f : 0.0f;
+    if (key == GLFW_KEY_EQUAL)
+      m_normalHardnessDir = pressed ? 1.0f : 0.0f;
 
     m_camera.OnKeyButton(key, pressed);
   }
@@ -121,14 +148,24 @@ public:
   }
 
 private:
+  struct GroupData
+  {
+    glm::mat4x4 m_model;
+    glm::mat4x4 m_mvp;
+  };
   rf::Window const * m_window = nullptr;
   rf::FreeCamera m_camera;
   GpuProgram m_program;
   GpuProgram m_wireframeProgram;
+  GpuProgram m_normalsProgram;
   Mesh m_mesh;
   float m_minAltitude = 0.0f;
   float m_maxAltitude = 10.0f;
   bool m_wireframeMode = false;
+  bool m_normalsMode = false;
+  float m_normalHardness = 0.1f;
+  float m_normalHardnessDir = 0.0f;
+  std::vector<GroupData> m_groupData;
 };
 
 int main()

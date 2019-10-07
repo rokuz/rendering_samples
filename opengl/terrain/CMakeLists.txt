@@ -15,11 +15,16 @@ endif()
 
 configure_file(../../assets/heightmap/heightmap.png heightmap.png COPYONLY)
 configure_file(terrain.vsh.glsl terrain.vsh.glsl COPYONLY)
+configure_file(terrain.gsh.glsl terrain.gsh.glsl COPYONLY)
 configure_file(terrain.fsh.glsl terrain.fsh.glsl COPYONLY)
 
 configure_file(wireframe.vsh.glsl wireframe.vsh.glsl COPYONLY)
 configure_file(wireframe.fsh.glsl wireframe.fsh.glsl COPYONLY)
 configure_file(wireframe.gsh.glsl wireframe.gsh.glsl COPYONLY)
+
+configure_file(normals.vsh.glsl normals.vsh.glsl COPYONLY)
+configure_file(normals.fsh.glsl normals.fsh.glsl COPYONLY)
+configure_file(normals.gsh.glsl normals.gsh.glsl COPYONLY)
 
 add_executable(${PROJECT_NAME} opengl_terrain.cpp)
 
