@@ -38,7 +38,7 @@ void main()
   vec4 diffuse = diffColor * ndotl;
   vec4 ambient = 0.25f * diffColor;
 
-  float fogDensity = 0.02 * (1.0 - vAltitude);
+  float fogDensity = 0.002 * clamp(1.0 - vAltitude * 2.0, 0.0, 1.0);
   float fogCoef = 1.0 - clamp(1.0 / exp(vEyeDistance * fogDensity * fogDensity), 0.0, 1.0);
 
   oColor = mix(clamp(diffuse + ambient, 0.0f, 1.0f), vec4(1.0, 1.0, 1.0, 1.0), fogCoef);

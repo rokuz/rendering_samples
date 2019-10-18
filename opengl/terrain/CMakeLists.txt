@@ -14,9 +14,14 @@ if (WIN32)
 endif()
 
 configure_file(../../assets/heightmap/heightmap.png heightmap.png COPYONLY)
+configure_file(../../assets/France_Rhone-Alpes_Haute-Savoie_terrain.txt France_Rhone-Alpes_Haute-Savoie_terrain.txt COPYONLY)
+configure_file(../../assets/France_Rhone-Alpes_Haute-Savoie_border.txt France_Rhone-Alpes_Haute-Savoie_border.txt COPYONLY)
 configure_file(terrain.vsh.glsl terrain.vsh.glsl COPYONLY)
 configure_file(terrain.gsh.glsl terrain.gsh.glsl COPYONLY)
 configure_file(terrain.fsh.glsl terrain.fsh.glsl COPYONLY)
+
+configure_file(lambert.vsh.glsl lambert.vsh.glsl COPYONLY)
+configure_file(lambert.fsh.glsl lambert.fsh.glsl COPYONLY)
 
 configure_file(rain.vsh.glsl rain.vsh.glsl COPYONLY)
 configure_file(rain.fsh.glsl rain.fsh.glsl COPYONLY)
