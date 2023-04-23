@@ -14,7 +14,7 @@ public:
   {
     m_window = window;
     m_camera.Initialize(m_window->GetScreenWidth(), m_window->GetScreenHeight());
-    m_camera.Setup(glm::vec3(-1.5f, 2.0f, -3.0f), glm::vec3(-0.5f, 0.5f, 0.0f));
+    m_camera.Setup(glm::vec3(-2.5f, 3.0f, -2.5f), glm::vec3(-1.5f, 2.0f, 1.0f));
 
     if (!m_program.Initialize({"skinned.vsh.glsl", "skinned.fsh.glsl"}, true /* areFiles */))
       return false;
@@ -41,7 +41,7 @@ public:
     m_meshDiffuseTextures.resize(m_mesh.GetGroupsCount());
     for (size_t groupIndex = 0; groupIndex < m_mesh.GetGroupsCount(); ++groupIndex)
     {
-      auto const material = m_mesh.GetGroupMaterial(groupIndex);
+      auto const material = m_mesh.GetGroupMaterial(static_cast<int>(groupIndex));
       if (material && !material->m_diffuseTexture.empty())
       {
         auto const it = m_textures.find(material->m_diffuseTexture);
