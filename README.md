@@ -1,5 +1,7 @@
 # Rendering samples
 
+These samples show how to use rendering framework [rf](https://github.com/rokuz/rf).
+
 ## 1. OpenGL 4 Basic Demo
 <img width="1136" alt="basic" src="https://user-images.githubusercontent.com/5437220/202045764-7001ee50-abb1-4fe7-b6d5-4139ff67a4ad.png">
 
